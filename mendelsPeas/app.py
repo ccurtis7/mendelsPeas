@@ -16,10 +16,11 @@ def main():
     generations.append(plants)
 
     for i in range(10):
-        plants = plants.breedFilter('aaa')
+        #plants = plants.breedFilter('A')
+        plants = plants.breedRandomPairs()
         plants.tag('{}'.format(i), '{}th generation'.format(i))
         print()
-        plants.phenoSummary()
+        plants.fullSummary()
         generations.append(plants)
 
 if __name__ == '__main__':

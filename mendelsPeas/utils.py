@@ -113,6 +113,32 @@ class Population:
                 item_counts[item] += 1
             else:
                 item_counts[item] = 1
+        item_counts = dict(sorted(item_counts.items()))
+
+        print('Pop. {} summary:'.format(self.name))
+        # Print the counts of unique items
+        for item, count in item_counts.items():
+            print(f"{item}: {count}")
+
+    def fullSummary(self):
+        phenos = [plant.phenotype for plant in self.plants]
+        p1Phenos = [plant.parents[0].phenotype for plant in self.plants]
+        p2Phenos = [plant.parents[1].phenotype for plant in self.plants]
+        i = 0
+        for p1, p2 in zip(p1Phenos, p2Phenos):
+            if p1 > p2:
+                p1Phenos[i], p2Phenos[i] = p2Phenos[i], p1Phenos[i]
+            i += 1
+        fullPhenos = [p + p1 + p2 for p, p1, p2 in zip(phenos, p1Phenos, p2Phenos)]
+
+        item_counts = {}
+        # Count occurrences of each item in the list
+        for item in fullPhenos:
+            if item in item_counts:
+                item_counts[item] += 1
+            else:
+                item_counts[item] = 1
+        item_counts = dict(sorted(item_counts.items()))
 
         print('Pop. {} summary:'.format(self.name))
         # Print the counts of unique items
