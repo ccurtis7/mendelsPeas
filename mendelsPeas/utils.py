@@ -1,4 +1,4 @@
-from random import choice
+from random import choice, shuffle
 
 class Plant:
     def __init__(self, *args):
@@ -10,7 +10,10 @@ class Plant:
             # all inputs are Plants
             p1, p2 = args[0], args[1]
             self.genotype = [choice(p1.genotype), choice(p2.genotype)]
-            self.parents = [p1, p2]
+            if p1.phenotype.isupper():
+                self.parents = [p1, p2]
+            else:
+                self.parents = [p2, p1]
         else:
             raise ValueError("Invalid input. Please provide either a string or two Plant instances.")
 
@@ -23,6 +26,13 @@ class Plant:
 
     def getPhenotype(self):
         return self.phenotype
+
+    def breed(self, plant, N=100):
+        newPop = []
+        for i in range(N):
+            newPop.append(Plant(self, plant))
+
+        return Population(newPop)
 
 class Population:
     def __init__(self, plants=''):
@@ -47,14 +57,51 @@ class Population:
         '''
         self.plants = [Plant(choice(pattern)) for i in range(N)]
 
-    def breedRandomPairs(self):
+    def breedRandomPairs(self, N=100):
         p1, p2 = self.plants.copy(), self.plants.copy()
-        shuffle(p1), shuffle(p2)
         newPop = []
-        for plant1, plant2 in zip(p1, p2):
-            newPop.append(Plant(plant1, plant2))
+        for i in range(N):
+            newPop.append(Plant(choice(p1), choice(p2)))
 
         return Population(newPop)
+
+    def breedWithPop(self, population, N=100):
+        p1, p2 = self.plants.copy(), population.plants.copy()
+        newPop = []
+        for i in range(N):
+            newPop.append(Plant(choice(p1), choice(p2)))
+
+        return Population(newPop)
+
+    def breedWithOne(self, plant, N=100):
+        p1 = self.plants.copy()
+        newPop = []
+        for i in range(N):
+            newPop.append(Plant(choice(p1), plant))
+
+        return Population(newPop)
+
+    def breedFilter(self, filterType='A', N=100):
+        plants = [self.plants[i] for i in self.filter(filterType)]
+        newPop = []
+        for i in range(N):
+            newPop.append(Plant(choice(plants), choice(plants)))
+        return Population(newPop)
+
+    def filter(self, filterType='A'):
+        phenos = [plant.phenotype for plant in self.plants]
+        if len(filterType) > 1:
+            p1Phenos = [plant.parents[0].phenotype for plant in self.plants]
+            p2Phenos = [plant.parents[1].phenotype for plant in self.plants]
+            fullPhenos = [p + p1 + p2 for p, p1, p2 in zip(phenos, p1Phenos, p2Phenos)]
+        if filterType == 'A':
+            return [index for index, letter in enumerate(phenos) if letter.isupper()]
+        elif filterType == 'a':
+            return [index for index, letter in enumerate(phenos) if letter.islower()]
+        elif filterType == 'AAA':
+            return [index for index, letter in enumerate(fullPhenos) if letter.isupper()]
+        elif filterType == 'aaa':
+            return [index for index, letter in enumerate(fullPhenos) if letter.islower()]
 
     def phenoSummary(self):
         phenos = [plant.phenotype for plant in self.plants]
@@ -67,7 +114,7 @@ class Population:
             else:
                 item_counts[item] = 1
 
-        print('Population summary:')
+        print('Pop. {} summary:'.format(self.name))
         # Print the counts of unique items
         for item, count in item_counts.items():
             print(f"{item}: {count}")
