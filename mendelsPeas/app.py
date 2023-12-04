@@ -1,8 +1,8 @@
 from utils import *
 from interface import *
 
-def startingPop():
-    plants = Population()
+def startingPop(trait):
+    plants = Population(trait=trait)
 
     plants.genRandomPop()
     plants.tag('N1', 'Imaginary starting population')
@@ -17,9 +17,9 @@ def startingPop():
     return generations
 
 def main():
-    generations = startingPop()
     printIntro()
     trait = getTrait()
+    generations = startingPop(trait)
     printInstructions()
     while True:
         command = getCommand(generations)
@@ -33,7 +33,8 @@ def main():
                 print('   {}: {}'.format(key, gen.note))
             continue # skip to next round, don't do anything else
         elif simType == 'P1list':
-            print('tbd')
+            p1 = generations[command.P1]
+            p1.list()
             continue
         elif simType == 'P1sum':
             p1 = generations[command.P1]
@@ -59,7 +60,7 @@ def main():
             px1, idx1 = x1name.split('.')
             px2, idx2 = x2name.split('.')
             x1, x2 = px1[idx1], px2[idx2]
-            newP = x1.breed(x2, N=command.N)
+            newP = x1.breed(x2, trait=trait, N=command.N)
         elif filter != None:
             p1 = generations[command.P1]
             # Right now 1/2 are assumed to correspond to dom/rec, which isn't necessarily the case. Need to fix this in the future. Look up which is which

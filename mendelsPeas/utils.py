@@ -27,21 +27,29 @@ class Plant:
     def getPhenotype(self):
         return self.phenotype
 
-    def breed(self, plant, N=100):
+    def breed(self, plant, trait='1', N=100):
         newPop = []
         for i in range(N):
             newPop.append(Plant(self, plant))
 
-        return Population(newPop)
+        return Population(newPop, trait) # This is awkward, because I made trait a population-level attribute
 
 class Population:
-    def __init__(self, plants=''):
+    def __init__(self, plants='', trait='1'):
         if plants == '':
             self.plants = []
         elif all(isinstance(arg, Plant) for arg in plants):
                 self.plants = plants
         else:
             raise ValueError("Invalid input. Please provide either no inputs or a list of Plants.")
+
+        traitDict = {'1': ['yellow', 'green'],
+                     '2': ['round', 'wrinkled'],
+                     '3': ['purple', 'white'],
+                     '4': ['yellow', 'green'],
+                     '5': ['inflated', 'constricted'],
+                     '6': ['axial', 'terminal']}
+        self.traits = trait
 
     def tag(self, name, note):
         '''
@@ -63,7 +71,7 @@ class Population:
         for i in range(N):
             newPop.append(Plant(choice(p1), choice(p2)))
 
-        return Population(newPop)
+        return Population(newPop, self.traits)
 
     def breedWithPop(self, population, N=100):
         p1, p2 = self.plants.copy(), population.plants.copy()
@@ -71,7 +79,7 @@ class Population:
         for i in range(N):
             newPop.append(Plant(choice(p1), choice(p2)))
 
-        return Population(newPop)
+        return Population(newPop, self.traits)
 
     def breedWithOne(self, plant, N=100):
         p1 = self.plants.copy()
@@ -79,14 +87,14 @@ class Population:
         for i in range(N):
             newPop.append(Plant(choice(p1), plant))
 
-        return Population(newPop)
+        return Population(newPop, self.traits)
 
     def breedFilter(self, filterType='A', N=100):
         plants = [self.plants[i] for i in self.filter(filterType)]
         newPop = []
         for i in range(N):
             newPop.append(Plant(choice(plants), choice(plants)))
-        return Population(newPop)
+        return Population(newPop, self.traits)
 
     def filter(self, filterType='A'):
         phenos = [plant.phenotype for plant in self.plants]
@@ -144,3 +152,8 @@ class Population:
         # Print the counts of unique items
         for item, count in item_counts.items():
             print(f"{item}: {count}")
+
+    def list(self):
+        name = self.name
+        for i, plant in enumerate(self.plants):
+            print('{}.{}: {} ({}/{})'.format(name, i, plant.phenotype, plant.parents[0].phenotype, plant.parents[1].phenotype))
