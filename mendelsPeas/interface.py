@@ -34,12 +34,17 @@ def printInstructions():
     print('x1onP1: pollinate all plants in a given population with a single plant')
     print('x1onx2: create a new population from the offspring of two plants\n')
     print('A valid command would like like\n')
-    print('P1onP1 Gen0 -N 100 -F 1\n')
-    print('This command would breed random pairs in the Gen0 population creating a new population of size N=100 and only breeding plants of the first kind (e.g. round)')
-    print('Filters only work for P1onP1 experiments. Flags (-N and -F) are optional. Default population size is 100.')
+    print('P1onP1 0 -N 100 -F 1\n')
+    print('This command would breed random pairs in the 0 population creating a new population of size N=100 and only breeding plants of the first kind (e.g. round)')
+    print('Filters only work for P1onP1 experiments. Flags (-N and -F) are optional. Default population size is 100. You may also list all populations with the command "list"\n')
+    print('Try running "P1onP1 0" as a test run. "0" is the name of the starting population.\n')
+    print('You may also use the following commands to get information to list information on a given population: ')
+    print('    P1list: List all plants in given population')
+    print('    P1sum: Provide a summary of all plant types in a given population')
+    print('    P1fullsum: Provide a summary of all plant types and types of parents in a given population\n')
 
 class Command:
-    def __init__(self, simType=None, names=None, N=100, filter=None):
+    def __init__(self, simType=None, names=[None]*4, N=100, filter=None):
         self.simType = simType
         self.P1, self.P2, self.x1, self.x2 = names
         self.N = N
@@ -49,7 +54,7 @@ class Command:
         return self.simType
 
     def getName(self):
-        if self.simType == 'P1onP1':
+        if self.simType in ['P1onP1', 'P1list', 'P1sum', 'P1fullsum']:
             return self.P1
         elif self.simType == 'P1onP2':
             return [self.P1, self.P2]
@@ -71,21 +76,26 @@ def getCommand(generations):
         print('Please enter a command: ')
         comm = input('> ')
         parts = comm.strip().split(' ')
+        simType = parts[0]
+        if simType == 'list':
+            return Command('list')
+        elif simType == 'quit':
+            return Command('quit')
+
         if len(parts) < 2:
             print('Not enough arguments. Please enter sim type, pop name, (pop. size), (filter)')
             continue
 
         # Make sure the simType is correct
-        simType = parts[0]
-        types = ['P1onP1', 'P1onP2', 'x1onP1', 'x1onx2']
+        types = ['P1onP1', 'P1onP2', 'x1onP1', 'x1onx2', 'P1onP1', 'P1list', 'P1sum', 'P1fullsum', 'list', 'quit']
         if simType not in types:
             print('Please use a valid simulation type: {}'.format(', '.join(types)))
             continue
 
         # Make sure any names are correct
-        names = [pop.name for pop in generations]
+        names = list(generations.keys())
         names.append(None)
-        if simType == 'P1onP1':
+        if simType in ['P1onP1', 'P1list', 'P1sum', 'P1fullsum']:
             P1 = parts[1]
         elif simType == 'P1onP2':
             P1, P2 = parts[1], parts[2]
