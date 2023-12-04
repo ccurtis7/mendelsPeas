@@ -1,27 +1,29 @@
 from utils import *
-from random import choice
+from interface import *
 
-def main():
-    print('Example program: ')
+def startingPop():
     plants = Population()
 
     plants.genRandomPop()
-    plants.tag('0', 'Starting population')
+    plants.tag('N1', 'Imaginary starting population')
     plants.phenoSummary()
     generations = [plants]
 
     plants = plants.breedRandomPairs()
-    plants.tag('1', '2nd gen, to get parents info')
+    plants.tag('0', 'Starting population')
     plants.phenoSummary()
     generations.append(plants)
 
-    for i in range(10):
-        #plants = plants.breedFilter('A')
-        plants = plants.breedRandomPairs()
-        plants.tag('{}'.format(i), '{}th generation'.format(i))
-        print()
-        plants.fullSummary()
-        generations.append(plants)
+    return generations
+
+def main():
+    generations = startingPop()
+    printIntro()
+    trait = getTrait()
+    printInstructions()
+    command = getCommand(generations)
+    print(command.getsimType())
+
 
 if __name__ == '__main__':
     main()
